@@ -1,5 +1,6 @@
 #include "HtmlParser.h"
 #include <algorithm>
+#include <cctype>
 #include <cstddef>
 #include <regex>
 
@@ -29,12 +30,9 @@ void HtmlParser::removeBeyondBodyContent(std::string &html) {
 
   size_t firstBodyTag = html.find("<body");
 
-  std::cout << html.size() << std::endl;
   html.erase(0, firstBodyTag);
-  std::cout << html.size() << std::endl;
   long long int lastBodyTag = html.find_last_of("</body");
   html.erase(lastBodyTag);
-  std::cout << html.size() << std::endl;
 }
 
 void HtmlParser::removeHtmlTags(std::string &html) {
@@ -42,6 +40,21 @@ void HtmlParser::removeHtmlTags(std::string &html) {
   std::regex tags("<[^>]*>");
 
   html = std::regex_replace(html, tags, "");
+}
+
+void HtmlParser::seperateWordsOnCapital(std::string **data) {
+
+  std::string *seperatedWords = new std::string{};
+
+  for (size_t i{}; i < (*data)->size(); i++) {
+    if (std::isupper((**data)[i]) && i > 0 && (**data)[i - 1] != ' ' &&
+        std::islower((**data)[i - 1])) {
+      *seperatedWords += " ";
+    }
+    *seperatedWords += (**data)[i];
+  }
+
+  *data = seperatedWords;
 }
 
 void HtmlParser::removeScriptTags(std::string &html) {

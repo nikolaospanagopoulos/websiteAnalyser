@@ -20,10 +20,9 @@ int main() {
     parser.removeScriptTags(*websiteHtmlContent);
     parser.removeHtmlTags(*websiteHtmlContent);
     parser.removeSpecialChars(websiteHtmlContent);
-    std::cout << "size: " << *websiteHtmlContent << std::endl;
 
-    delete websiteHtmlContent;
-    websiteHtmlContent = nullptr;
+    parser.seperateWordsOnCapital(&websiteHtmlContent);
+    std::cout << *websiteHtmlContent;
 
     std::cout << "nikos";
   } catch (CustomException &err) {
