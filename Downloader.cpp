@@ -1,5 +1,5 @@
-#include "Downloader.h"
-#include "CustomException.h"
+#include "Downloader.hpp"
+#include "CustomException.hpp"
 #include <cstddef>
 #include <curl/curl.h>
 #include <regex>
@@ -71,4 +71,5 @@ std::string *Downloader::requestData(std::string websiteUrl) {
 }
 
 Downloader::~Downloader() { delete response; }
+
 Downloader::Downloader() { response = new std::string{}; };

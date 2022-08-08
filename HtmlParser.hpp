@@ -10,4 +10,5 @@ public:
   void removeHtmlTags(std::string &html);
   void removeScriptTags(std::string &html);
   void removeSpecialChars(std::string *html);
+  void removeComments(std::string *html);
 };

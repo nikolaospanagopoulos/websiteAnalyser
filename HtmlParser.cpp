@@ -1,4 +1,4 @@
-#include "HtmlParser.h"
+#include "HtmlParser.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
@@ -55,6 +55,7 @@ void HtmlParser::seperateWordsOnCapital(std::string **data) {
   }
 
   *data = seperatedWords;
+  seperatedWords = nullptr;
 }
 
 void HtmlParser::removeScriptTags(std::string &html) {
@@ -73,5 +74,29 @@ void HtmlParser::removeScriptTags(std::string &html) {
       html.erase(firstScript, scriptString.size());
     }
     start++;
+  }
+}
+void HtmlParser::removeComments(std::string *html)
+
+{
+
+  std::string::iterator startIter = html->begin();
+
+  size_t firstComment = html->find("/*");
+  size_t lastComment = html->find("*/");
+  while (startIter != html->end()) {
+
+    if (firstComment != std::string::npos && lastComment != std::string::npos &&
+        lastComment > firstComment) {
+      std::string commentString =
+          html->substr(firstComment, lastComment - firstComment);
+      html->erase(firstComment, commentString.size());
+    }
+    if (firstComment != std::string::npos && lastComment == std::string::npos) {
+
+      html->erase(firstComment, std::string::npos);
+    }
+
+    startIter++;
   }
 }

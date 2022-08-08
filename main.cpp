@@ -1,17 +1,22 @@
-#include "CustomException.h"
-#include "Downloader.h"
-#include "HtmlParser.h"
+#include "App.hpp"
+#include "CustomException.hpp"
+#include "Downloader.hpp"
+#include "HtmlParser.hpp"
 #include <iostream>
 int main() {
 
   try {
-    std::string *websiteHtmlContent{};
+
+    std::string *websiteHtmlContent = nullptr;
 
     Downloader downloader{};
 
-    websiteHtmlContent = downloader.requestData(
-        "https://www.bbc.com/news/world-middle-east-62445951");
+    std::cout << "choose a website:\n";
+    std::string website{};
 
+    std::cin >> website;
+
+    websiteHtmlContent = downloader.requestData(website);
     HtmlParser parser{};
     parser.removeSpaces(*websiteHtmlContent);
 
@@ -19,12 +24,12 @@ int main() {
 
     parser.removeScriptTags(*websiteHtmlContent);
     parser.removeHtmlTags(*websiteHtmlContent);
+    parser.removeComments(websiteHtmlContent);
     parser.removeSpecialChars(websiteHtmlContent);
 
     parser.seperateWordsOnCapital(&websiteHtmlContent);
-    std::cout << *websiteHtmlContent;
 
-    std::cout << "nikos";
+    delete websiteHtmlContent;
   } catch (CustomException &err) {
     std::cerr << err.what() << std::endl;
   }
