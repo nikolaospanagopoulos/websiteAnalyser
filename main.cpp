@@ -1,4 +1,3 @@
-#include "App.hpp"
 #include "CustomException.hpp"
 #include "Downloader.hpp"
 #include "HtmlParser.hpp"
@@ -18,17 +17,18 @@ int main() {
 
     websiteHtmlContent = downloader.requestData(website);
     HtmlParser parser{};
-    parser.removeSpaces(*websiteHtmlContent);
+    parser.removeSpaces(websiteHtmlContent);
 
-    parser.removeBeyondBodyContent(*websiteHtmlContent);
+    parser.removeBeyondBodyContent(websiteHtmlContent);
 
-    parser.removeScriptTags(*websiteHtmlContent);
-    parser.removeHtmlTags(*websiteHtmlContent);
+    parser.removeScriptTags(websiteHtmlContent);
+    parser.removeHtmlTags(websiteHtmlContent);
     parser.removeComments(websiteHtmlContent);
     parser.removeSpecialChars(websiteHtmlContent);
 
     parser.seperateWordsOnCapital(&websiteHtmlContent);
 
+    std::cout << *websiteHtmlContent;
     delete websiteHtmlContent;
   } catch (CustomException &err) {
     std::cerr << err.what() << std::endl;

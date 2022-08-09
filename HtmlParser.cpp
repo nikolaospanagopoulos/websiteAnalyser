@@ -16,30 +16,30 @@ void HtmlParser::removeSpecialChars(std::string *html) {
   html->erase(beginToRemove, html->end());
 }
 
-void HtmlParser::removeSpaces(std::string &html) {
+void HtmlParser::removeSpaces(std::string *html) {
   std::string::iterator newEnd =
-      std::unique(html.begin(), html.end(), [](char &x, char &y) {
+      std::unique(html->begin(), html->end(), [](char &x, char &y) {
         return (std::isspace(x) && std::isspace(y));
       });
-  if (newEnd != html.end()) {
-    html.erase(newEnd, html.end());
+  if (newEnd != html->end()) {
+    html->erase(newEnd, html->end());
   }
 }
 
-void HtmlParser::removeBeyondBodyContent(std::string &html) {
+void HtmlParser::removeBeyondBodyContent(std::string *html) {
 
-  size_t firstBodyTag = html.find("<body");
+  size_t firstBodyTag = html->find("<body");
 
-  html.erase(0, firstBodyTag);
-  long long int lastBodyTag = html.find_last_of("</body");
-  html.erase(lastBodyTag);
+  html->erase(0, firstBodyTag);
+  long long int lastBodyTag = html->find_last_of("</body");
+  html->erase(lastBodyTag);
 }
 
-void HtmlParser::removeHtmlTags(std::string &html) {
+void HtmlParser::removeHtmlTags(std::string *html) {
 
   std::regex tags("<[^>]*>");
 
-  html = std::regex_replace(html, tags, "");
+  *html = std::regex_replace(*html, tags, "");
 }
 
 void HtmlParser::seperateWordsOnCapital(std::string **data) {
@@ -58,20 +58,20 @@ void HtmlParser::seperateWordsOnCapital(std::string **data) {
   seperatedWords = nullptr;
 }
 
-void HtmlParser::removeScriptTags(std::string &html) {
+void HtmlParser::removeScriptTags(std::string *html) {
 
-  std::string::iterator start = html.begin();
+  std::string::iterator start = html->begin();
 
-  while (start != html.end()) {
-    size_t firstScript = html.find("<script");
-    size_t lastScript = html.find("</script>");
+  while (start != html->end()) {
+    size_t firstScript = html->find("<script");
+    size_t lastScript = html->find("</script>");
 
     if (firstScript != std::string::npos && lastScript != std::string::npos &&
         lastScript > firstScript) {
 
       std::string scriptString =
-          html.substr(firstScript, lastScript - firstScript);
-      html.erase(firstScript, scriptString.size());
+          html->substr(firstScript, lastScript - firstScript);
+      html->erase(firstScript, scriptString.size());
     }
     start++;
   }
