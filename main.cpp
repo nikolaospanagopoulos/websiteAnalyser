@@ -1,35 +1,29 @@
 #include "CustomException.hpp"
 #include "Downloader.hpp"
 #include "HtmlParser.hpp"
+#include "helpers.h"
 #include <iostream>
 int main() {
 
   try {
 
-    std::string *websiteHtmlContent = nullptr;
-
     Downloader downloader{};
 
-    std::cout << "choose a website:\n";
-    std::string website{};
+    std::string website = getUrlFromUser();
 
-    std::cin >> website;
-
-    websiteHtmlContent = downloader.requestData(website);
+    std::string *websiteHtmlContent = downloader.requestData(website);
     HtmlParser parser{};
-    parser.removeSpaces(websiteHtmlContent);
 
-    parser.removeBeyondBodyContent(websiteHtmlContent);
+    parser.prepareDataForVector(websiteHtmlContent);
 
-    parser.removeScriptTags(websiteHtmlContent);
-    parser.removeHtmlTags(websiteHtmlContent);
-    parser.removeComments(websiteHtmlContent);
-    parser.removeSpecialChars(websiteHtmlContent);
 
-    parser.seperateWordsOnCapital(&websiteHtmlContent);
+    std::vector<std::string> *wordVector =
+        parser.fillVector(websiteHtmlContent);
 
-    std::cout << *websiteHtmlContent;
-    delete websiteHtmlContent;
+    for (auto &val : *wordVector) {
+      std::cout << val << '\n';
+    }
+
   } catch (CustomException &err) {
     std::cerr << err.what() << std::endl;
   }

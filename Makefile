@@ -2,7 +2,7 @@ FLAGS= -Wall -std=c++17
 LIB= -lcurl
 
 
-OBJECTS=./build/Downloader.o ./build/HtmlParser.o 
+OBJECTS=./build/Downloader.o ./build/HtmlParser.o ./build/helpers.o
 
 all: ${OBJECTS}
 	g++ ${FLAGS} -o ./bin/main ./main.cpp ${OBJECTS} ${LIB}
@@ -12,4 +12,5 @@ all: ${OBJECTS}
 
 ./build/HtmlParser.o: ./HtmlParser.cpp
 	g++ ${FLAGS} ./HtmlParser.cpp -c -o ./build/HtmlParser.o
-
+./build/helpers.o: ./helpers.cpp
+	g++ ${FLAGS} ./helpers.cpp -c -o ./build/helpers.o

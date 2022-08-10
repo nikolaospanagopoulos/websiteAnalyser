@@ -75,4 +75,4 @@ Downloader::~Downloader() {
   delete response;
 }
 
-Downloader::Downloader(){};
+Downloader::Downloader() { response = nullptr; };

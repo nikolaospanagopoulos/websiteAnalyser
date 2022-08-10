@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstddef>
 #include <regex>
+#include <sstream>
 
 bool specialChars(char &x) { return !std::isalpha(x) && x != ' '; }
 
@@ -54,8 +55,8 @@ void HtmlParser::seperateWordsOnCapital(std::string **data) {
     *seperatedWords += (**data)[i];
   }
 
-  *data = seperatedWords;
-  seperatedWords = nullptr;
+  **data = *seperatedWords;
+  delete seperatedWords;
 }
 
 void HtmlParser::removeScriptTags(std::string *html) {
@@ -99,4 +100,40 @@ void HtmlParser::removeComments(std::string *html)
 
     startIter++;
   }
+}
+
+void HtmlParser::prepareDataForVector(std::string *html) {
+
+  removeSpaces(html);
+
+  removeBeyondBodyContent(html);
+
+  removeScriptTags(html);
+  removeHtmlTags(html);
+  removeComments(html);
+  removeSpecialChars(html);
+
+  seperateWordsOnCapital(&html);
+}
+
+HtmlParser::HtmlParser() { words = new std::vector<std::string>{}; }
+
+HtmlParser::~HtmlParser() { delete words; }
+
+std::vector<std::string> *HtmlParser::fillVector(std::string *html) {
+
+  std::stringstream *wordStream = new std::stringstream{*html};
+
+  std::string *temp = new std::string{};
+
+  while (*wordStream >> *temp) {
+    if (temp->size() >= 20 || temp->size() < 3) {
+
+      continue;
+    }
+    words->push_back(*temp);
+  }
+  delete temp;
+  delete wordStream;
+  return words;
 }
