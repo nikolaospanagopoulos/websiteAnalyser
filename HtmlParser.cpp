@@ -116,11 +116,11 @@ void HtmlParser::prepareDataForVector(std::string *html) {
   seperateWordsOnCapital(&html);
 }
 
-HtmlParser::HtmlParser() { words = new std::vector<std::string>{}; }
+HtmlParser::HtmlParser() { words = new std::set<std::string>{}; }
 
 HtmlParser::~HtmlParser() { delete words; }
 
-std::vector<std::string> *HtmlParser::fillVector(std::string *html) {
+std::set<std::string> *HtmlParser::fillSet(std::string *html) {
 
   std::stringstream *wordStream = new std::stringstream{*html};
 
@@ -131,7 +131,7 @@ std::vector<std::string> *HtmlParser::fillVector(std::string *html) {
 
       continue;
     }
-    words->push_back(*temp);
+    words->insert(*temp);
   }
   delete temp;
   delete wordStream;

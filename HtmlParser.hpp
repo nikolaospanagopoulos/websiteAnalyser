@@ -1,11 +1,11 @@
 #pragma once
 #include <algorithm>
 #include <iostream>
-#include <vector>
+#include <set>
 class HtmlParser {
 
 private:
-  std::vector<std::string> *words{};
+  std::set<std::string> *words{};
 
 public:
   void removeSpaces(std::string *html);
@@ -17,7 +17,7 @@ public:
   void removeComments(std::string *html);
   void prepareDataForVector(std::string *html);
 
-  std::vector<std::string> *fillVector(std::string *html);
+  std::set<std::string> *fillSet(std::string *html);
 
   HtmlParser();
   ~HtmlParser();
