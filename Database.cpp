@@ -1,5 +1,7 @@
 #include "Database.hpp"
+#include "CustomException.hpp"
 #include "JsonDownloader.hpp"
+#include <map>
 
 Database::Database() {
   try {
@@ -46,7 +48,8 @@ void Database::createWordsTable() {
       "CREATE TABLE IF NOT EXISTS words ( word_id INT  NOT NULL "
       "AUTO_INCREMENT, text "
       "VARCHAR(250) NOT NULL, category_id INT, FOREIGN KEY (category_id) "
-      "REFERENCES categories (category_id), PRIMARY KEY (word_id))"};
+      "REFERENCES categories (category_id) ON DELETE CASCADE, PRIMARY KEY "
+      "(word_id))"};
   try {
     res = stmt->executeQuery(query);
     delete stmt;
@@ -177,4 +180,178 @@ void Database::addWords() {
   } catch (sql::SQLException &e) {
     std::cerr << e.what() << std::endl;
   }
+}
+
+void Database::showTables() {
+
+  try {
+
+    std::cout << "Select a table name: ";
+    std::string tableName = {};
+    std::cin >> tableName;
+    sql::Statement *stmt;
+    sql::ResultSet *res;
+    stmt = con->createStatement();
+    std::string whatToSelect = tableName == "words"        ? "text"
+                               : tableName == "categories" ? "name"
+                                                           : "*";
+
+    std::string query{"SELECT "};
+
+    query.append(whatToSelect);
+    query += " FROM ";
+
+    query.append(tableName);
+    res = stmt->executeQuery(query);
+    sql::ResultSetMetaData *res_meta = res->getMetaData();
+
+    size_t columns = res_meta->getColumnCount();
+
+    std::cout << query << std::endl;
+
+    while (res->next()) {
+      for (size_t i = 1; i <= columns; i++) {
+        std::cout << "| " << res->getString(i) << " |" << std::endl;
+      }
+    }
+    delete stmt;
+    delete res;
+    delete res_meta;
+  } catch (sql::SQLException &e) {
+    std::cerr << e.what() << std::endl;
+  }
+}
+void Database::showWordsByCategory() {
+
+  try {
+
+    std::cout << "Select a category name: ";
+
+    std::string categoryName{};
+
+    std::cin >> categoryName;
+
+    std::string categoryId = getCategoryId(categoryName);
+
+    if (categoryId.empty()) {
+      std::cout << "cannot find category" << std::endl;
+      return;
+    }
+
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+
+    std::string query = "SELECT text FROM words WHERE category_id=";
+    query.append(categoryId);
+
+    res = stmt->executeQuery(query);
+    sql::ResultSetMetaData *res_meta = res->getMetaData();
+
+    size_t columns = res_meta->getColumnCount();
+    while (res->next()) {
+      for (size_t i = 1; i <= columns; i++) {
+        std::cout << "| " << res->getString(i) << " |" << std::endl;
+      }
+    }
+    delete res_meta;
+    delete res;
+    delete stmt;
+  } catch (sql::SQLException &e) {
+    e.what();
+  }
+}
+std::vector<std::string *> *
+Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
+  try {
+
+    if (resultsWords->size() == 0) {
+
+      throw CustomException((char *)"no results");
+    }
+
+    std::string statement = {"SELECT category_id FROM words WHERE "};
+
+    for (auto *word : *resultsWords) {
+
+      std::string text = "text LIKE ";
+
+      std::string orSql = " OR ";
+      statement.append(text + "\"" + *word + "\"" + orSql);
+    }
+
+    auto wordToRemove = statement.find_last_of("OR");
+
+    statement.erase(wordToRemove - 1);
+
+    statement.append(";");
+
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+
+    sql::ResultSet *res;
+    res = stmt->executeQuery(statement);
+    sql::ResultSetMetaData *res_meta = res->getMetaData();
+
+    size_t columns = res_meta->getColumnCount();
+    if (columns == 0) {
+      throw CustomException(const_cast<char *>("no results in db"));
+    }
+    std::vector<std::string *> *categoryIdsVector =
+        new std::vector<std::string *>{};
+    while (res->next()) {
+      for (size_t i = 1; i <= columns; i++) {
+
+        categoryIdsVector->push_back(new std::string{res->getString(i)});
+      }
+    }
+
+    delete res_meta;
+    delete res;
+    delete stmt;
+
+    return categoryIdsVector;
+  } catch (sql::SQLException &e) {
+
+    e.what();
+  }
+  return nullptr;
+}
+
+std::string Database::getResults(std::vector<std::string *> *resultsNumVec) {
+
+  std::string statement = {"SELECT name FROM categories WHERE "};
+
+  for (auto *id : *resultsNumVec) {
+
+    std::string text = "category_id LIKE ";
+
+    std::string orSql = " OR ";
+    statement.append(text + "\"" + *id + "\"" + orSql);
+  }
+
+  auto wordToRemove = statement.find_last_of("OR");
+
+  statement.erase(wordToRemove - 1);
+
+  statement.append(";");
+
+  sql::Statement *stmt;
+  stmt = con->createStatement();
+  sql::ResultSet *res;
+
+  res = stmt->executeQuery(statement);
+  sql::ResultSetMetaData *res_meta = res->getMetaData();
+
+  size_t columns = res_meta->getColumnCount();
+  while (res->next()) {
+    for (size_t i = 1; i <= columns; i++) {
+
+      std::cout << res->getString(i) << std::endl;
+    }
+  }
+  delete stmt;
+  delete res;
+  delete res_meta;
+  return statement;
 }
