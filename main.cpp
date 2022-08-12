@@ -31,10 +31,14 @@ int main() {
     std::vector<json *> *responses = wordsDownloader->getJsonResponses();
 
     for (auto *jsonRes : *responses) {
-      std::cout << jsonRes->dump(4) << std::endl;
+      //      std::cout << jsonRes->dump(4) << std::endl;
     }
 
     Database *db = new Database{};
+    std::string cat = "war";
+    db->createCategory(cat);
+
+    db->addWords();
 
     delete db;
     delete randomWordsVector;

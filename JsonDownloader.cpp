@@ -78,3 +78,20 @@ std::vector<json *> *JsonDownloader::getJsonResponses() const {
 
   return jsonObjects;
 }
+
+std::vector<std::string *> *JsonDownloader::getWordsFromJson() const {
+
+  std::vector<std::string *> *wordsVec = new std::vector<std::string *>{};
+
+  for (auto *obj : *jsonObjects) {
+
+    auto jsonData = obj->at("response")[0]["items"];
+    size_t jsonDataSize = jsonData.size();
+    for (size_t i{}; i < jsonDataSize; i++) {
+      std::string *result = new std::string{jsonData[i]["item"]};
+      wordsVec->push_back(result);
+    }
+  }
+
+  return wordsVec;
+}

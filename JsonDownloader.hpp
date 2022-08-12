@@ -17,4 +17,5 @@ public:
   json *sendRequest(const std::string &word);
   void fillJsonVector(const std::string &word);
   std::vector<json *> *getJsonResponses() const;
+  std::vector<std::string*> *getWordsFromJson() const;
 };
