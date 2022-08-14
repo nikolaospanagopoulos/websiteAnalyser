@@ -7,14 +7,29 @@ Database::Database() {
 
   driver = sql::mariadb::get_driver_instance();
   con = driver->connect("tcp://127.0.0.1:3306", "root", "");
-  std::cout << con;
   if (!con) {
     throw CustomException((char *)("couldnt connect to db"));
   }
+  createDatabase();
   con->setSchema("grapeshotClone");
 
   createCategoriesTable();
   createWordsTable();
+}
+
+void Database::createDatabase() {
+
+  sql::Statement *stmt;
+  sql::ResultSet *res;
+
+  std::string query{"CREATE DATABASE IF NOT EXISTS grapeshotClone;"};
+
+  stmt = con->createStatement();
+
+  res = stmt->executeQuery(query);
+
+  delete res;
+  delete stmt;
 }
 
 Database::~Database() { delete con; }

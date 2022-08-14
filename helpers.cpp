@@ -18,7 +18,7 @@ std::string getUrlFromUser() {
 std::vector<std::string> *
 randomWords(const std::set<std::string> *const allWords) {
 
-  size_t randomWordsSize{10};
+  size_t randomWordsSize{20};
 
   if (allWords->size() < randomWordsSize && allWords->size() > 0) {
     randomWordsSize = allWords->size();

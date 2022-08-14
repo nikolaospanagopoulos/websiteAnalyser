@@ -11,6 +11,7 @@ private:
   bool categoryExists(const std::string &category);
   void createCategoriesTable();
   void createWordsTable();
+  void createDatabase();
   std::string getCategoryId(const std::string &categoryName);
 
 public:
@@ -23,6 +24,7 @@ public:
   void addWords();
   void showWordsByCategory();
   void deleteCategory();
+
   Database();
   ~Database();
 };
