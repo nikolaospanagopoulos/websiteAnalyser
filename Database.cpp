@@ -4,18 +4,17 @@
 #include <map>
 
 Database::Database() {
-  try {
 
-    driver = sql::mariadb::get_driver_instance();
-    con = driver->connect("tcp://127.0.0.1:3306", "root", "root");
-    con->setSchema("grapeshotClone");
-
-    createCategoriesTable();
-    createWordsTable();
-
-  } catch (sql::SQLException &e) {
-    std::cout << "# ERR: " << e.what() << std::endl;
+  driver = sql::mariadb::get_driver_instance();
+  con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+  std::cout << con;
+  if (!con) {
+    throw CustomException((char *)("couldnt connect to db"));
   }
+  con->setSchema("grapeshotClone");
+
+  createCategoriesTable();
+  createWordsTable();
 }
 
 Database::~Database() { delete con; }
@@ -35,8 +34,7 @@ void Database::createCategoriesTable() {
     delete stmt;
     delete res;
   } catch (sql::SQLException &e) {
-    std::cout << "nikos";
-    std::cout << "# ERR: " << e.what() << std::endl;
+    throw CustomException((char *)(e.what()));
   }
 }
 void Database::createWordsTable() {
@@ -55,7 +53,7 @@ void Database::createWordsTable() {
     delete stmt;
     delete res;
   } catch (sql::SQLException &e) {
-    std::cout << "# ERR: " << e.what() << std::endl;
+    throw CustomException((char *)(e.what()));
   }
 }
 
@@ -104,7 +102,7 @@ void Database::createCategory(const std::string &category) {
     delete stmt;
     delete res;
   } catch (sql::SQLException &e) {
-    std::cerr << e.what() << std::endl;
+    throw CustomException((char *)(e.what()));
   }
 }
 
@@ -178,7 +176,7 @@ void Database::addWords() {
     delete res;
     delete stmt;
   } catch (sql::SQLException &e) {
-    std::cerr << e.what() << std::endl;
+    throw CustomException((char *)(e.what()));
   }
 }
 
@@ -218,7 +216,7 @@ void Database::showTables() {
     delete res;
     delete res_meta;
   } catch (sql::SQLException &e) {
-    std::cerr << e.what() << std::endl;
+    throw CustomException((char *)(e.what()));
   }
 }
 void Database::showWordsByCategory() {
@@ -258,7 +256,7 @@ void Database::showWordsByCategory() {
     delete res;
     delete stmt;
   } catch (sql::SQLException &e) {
-    e.what();
+    throw CustomException((char *)(e.what()));
   }
 }
 std::vector<std::string *> *
@@ -312,8 +310,7 @@ Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
 
     return categoryIdsVector;
   } catch (sql::SQLException &e) {
-
-    e.what();
+    throw CustomException((char *)(e.what()));
   }
   return nullptr;
 }
@@ -354,4 +351,37 @@ std::string Database::getResults(std::vector<std::string *> *resultsNumVec) {
   delete res;
   delete res_meta;
   return statement;
+}
+
+void Database::deleteCategory() {
+  try {
+
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+
+    std::cout << "select a category to delete: \n";
+
+    std::string categoryName{};
+
+    std::cin >> categoryName;
+
+    std::string categoryId = getCategoryId(categoryName);
+
+    if (categoryId.size() == 0) {
+      throw CustomException((char *)("category doesnt exist"));
+    }
+
+    std::string statement = {"DELETE FROM categories where category_id="};
+
+    statement.append(categoryId);
+
+    std::cout << statement;
+    res = stmt->executeQuery(statement);
+
+    delete res;
+    delete stmt;
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "Database.hpp"
 #include "Downloader.hpp"
 #include "HtmlParser.hpp"
 #include "JsonDownloader.hpp"
@@ -15,3 +16,9 @@ extern size_t (*callBackToWrite)(char *, size_t, size_t, void *);
 std::vector<std::string *> *analyzeWebsite(Downloader *downloader,
                                            HtmlParser *parser,
                                            JsonDownloader *wordsDownloader);
+
+void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
+                JsonDownloader *wordsDownloader,
+                std::vector<std::string *> *resultsWords,
+
+                Downloader *downloader);

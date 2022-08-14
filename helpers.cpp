@@ -1,5 +1,6 @@
 #include "helpers.h"
 #include "CustomException.hpp"
+#include "Downloader.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <random>
@@ -73,4 +74,23 @@ std::vector<std::string *> *analyzeWebsite(Downloader *downloader,
 
   delete randomWordsVector;
   return resultsWords;
+}
+
+void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
+                JsonDownloader *wordsDownloader,
+                std::vector<std::string *> *resultsWords,
+                Downloader *downloader) {
+
+  delete wordsDownloader;
+  delete downloader;
+  delete parser;
+  for (auto ptr : *ids) {
+    delete ptr;
+  }
+  delete ids;
+  for (auto val : *resultsWords) {
+
+    delete val;
+  }
+  delete resultsWords;
 }

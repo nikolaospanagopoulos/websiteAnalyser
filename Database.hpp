@@ -21,6 +21,7 @@ public:
   void createCategory(const std::string &category);
   void addWords();
   void showWordsByCategory();
+  void deleteCategory();
   Database();
   ~Database();
 };
