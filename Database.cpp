@@ -212,6 +212,10 @@ void Database::showTables() {
         std::cout << "| " << res->getString(i) << " |" << std::endl;
       }
     }
+    if (!res->next()) {
+
+      throw CustomException((char *)("table is empty"));
+    }
     delete stmt;
     delete res;
     delete res_meta;
@@ -232,8 +236,7 @@ void Database::showWordsByCategory() {
     std::string categoryId = getCategoryId(categoryName);
 
     if (categoryId.empty()) {
-      std::cout << "cannot find category" << std::endl;
-      return;
+      throw CustomException((char *)("category doesnt exist"));
     }
 
     sql::Statement *stmt;

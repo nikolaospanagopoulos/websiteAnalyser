@@ -15,6 +15,7 @@ int main() {
     char choice{};
     do {
 
+      std::cout << std::endl;
       std::cout << "1: find what the website is about" << std::endl;
       std::cout << "2: add words to semantic Category" << std::endl;
       std::cout << "3: show database" << std::endl;
@@ -58,7 +59,6 @@ int main() {
     std::cerr << err.what() << std::endl;
   } catch (sql::SQLException &e) {
     std::cerr << e.what() << std::endl;
-    // standard exceptions
   }
   return 0;
 }
