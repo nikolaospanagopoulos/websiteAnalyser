@@ -34,8 +34,12 @@ int main() {
         std::vector<std::string *> *resultsWords =
             analyzeWebsite(downloader, parser, wordsDownloader);
         std::vector<std::string *> *ids = db->analyzeResults(resultsWords);
-        std::cout << db->getResults(ids) << std::endl;
-        freeMemory(ids, parser, wordsDownloader, resultsWords, downloader);
+        std::vector<std::string *> *finalResults = db->getResults(ids);
+
+        printVector(finalResults);
+        freeMemory(ids, parser, wordsDownloader, resultsWords, downloader,
+                   finalResults);
+
       } break;
       case '2':
         db->addWords();

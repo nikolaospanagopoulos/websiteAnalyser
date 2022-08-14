@@ -14,7 +14,8 @@ private:
   std::string getCategoryId(const std::string &categoryName);
 
 public:
-  std::string getResults(std::vector<std::string *> *resultsNumVec);
+  std::vector<std::string *> *
+  getResults(std::vector<std::string *> *resultsNumVec);
   std::vector<std::string *> *
   analyzeResults(const std::vector<std::string *> *resultsWords);
   void showTables();

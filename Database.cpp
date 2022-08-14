@@ -318,7 +318,8 @@ Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
   return nullptr;
 }
 
-std::string Database::getResults(std::vector<std::string *> *resultsNumVec) {
+std::vector<std::string *> *
+Database::getResults(std::vector<std::string *> *resultsNumVec) {
 
   std::string statement = {"SELECT name FROM categories WHERE "};
 
@@ -344,16 +345,17 @@ std::string Database::getResults(std::vector<std::string *> *resultsNumVec) {
   sql::ResultSetMetaData *res_meta = res->getMetaData();
 
   size_t columns = res_meta->getColumnCount();
+  std::vector<std::string *> *results = new std::vector<std::string *>{};
   while (res->next()) {
     for (size_t i = 1; i <= columns; i++) {
 
-      std::cout << res->getString(i) << std::endl;
+      results->push_back(new std::string(res->getString(i)));
     }
   }
   delete stmt;
   delete res;
   delete res_meta;
-  return statement;
+  return results;
 }
 
 void Database::deleteCategory() {

@@ -21,4 +21,7 @@ void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
                 JsonDownloader *wordsDownloader,
                 std::vector<std::string *> *resultsWords,
 
-                Downloader *downloader);
+                Downloader *downloader,
+                std::vector<std::string *> *finalResults);
+
+void printVector(const std::vector<std::string *> *results);

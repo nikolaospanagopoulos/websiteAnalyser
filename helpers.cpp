@@ -79,11 +79,16 @@ std::vector<std::string *> *analyzeWebsite(Downloader *downloader,
 void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
                 JsonDownloader *wordsDownloader,
                 std::vector<std::string *> *resultsWords,
-                Downloader *downloader) {
+                Downloader *downloader,
+                std::vector<std::string *> *finalResults) {
 
   delete wordsDownloader;
   delete downloader;
   delete parser;
+  for (auto ptr : *finalResults) {
+    delete ptr;
+  }
+  delete finalResults;
   for (auto ptr : *ids) {
     delete ptr;
   }
@@ -93,4 +98,10 @@ void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
     delete val;
   }
   delete resultsWords;
+}
+
+void printVector(const std::vector<std::string *> *results) {
+  for (auto res : *results) {
+    std::cout << "| " << *res << " |" << std::endl;
+  }
 }
