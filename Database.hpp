@@ -21,7 +21,7 @@ public:
   analyzeResults(const std::vector<std::string *> *resultsWords);
   void showTables();
   void createCategory(const std::string &category);
-  void addWords();
+  void addWords(std::string &categoryName);
   void showWordsByCategory();
   void deleteCategory();
 

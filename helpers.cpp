@@ -51,30 +51,6 @@ size_t writeResponseToString(char *contents, size_t size, size_t nmemb,
 }
 size_t (*callBackToWrite)(char *, size_t, size_t,
                           void *) = writeResponseToString;
-std::vector<std::string *> *analyzeWebsite(Downloader *downloader,
-                                           HtmlParser *parser,
-                                           JsonDownloader *wordsDownloader) {
-
-  std::string website = getUrlFromUser();
-
-  std::string *websiteHtmlContent = downloader->requestData(website);
-
-  parser->prepareDataForVector(websiteHtmlContent);
-
-  std::set<std::string> *wordSet = parser->fillSet(websiteHtmlContent);
-
-  std::vector<std::string> *randomWordsVector = randomWords(wordSet);
-
-  for (const auto &el : *randomWordsVector) {
-    wordsDownloader->fillJsonVector(el);
-  }
-
-  std::vector<std::string *> *resultsWords =
-      wordsDownloader->getWordsFromJson();
-
-  delete randomWordsVector;
-  return resultsWords;
-}
 
 void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
                 JsonDownloader *wordsDownloader,

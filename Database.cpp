@@ -19,17 +19,18 @@ Database::Database() {
 
 void Database::createDatabase() {
 
-  sql::Statement *stmt;
-  sql::ResultSet *res;
+  try {
 
-  std::string query{"CREATE DATABASE IF NOT EXISTS grapeshotClone;"};
-
-  stmt = con->createStatement();
-
-  res = stmt->executeQuery(query);
-
-  delete res;
-  delete stmt;
+    sql::Statement *stmt;
+    sql::ResultSet *res;
+    std::string query{"CREATE DATABASE IF NOT EXISTS grapeshotClone;"};
+    stmt = con->createStatement();
+    res = stmt->executeQuery(query);
+    delete res;
+    delete stmt;
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
 }
 
 Database::~Database() { delete con; }
@@ -145,14 +146,9 @@ std::string Database::getCategoryId(const std::string &categoryName) {
   return categoryId;
 }
 
-void Database::addWords() {
+void Database::addWords(std::string &categoryName) {
 
   try {
-
-    std::string categoryName{};
-    std::cout << "add a category name: \n";
-
-    std::cin >> categoryName;
 
     createCategory(categoryName);
 
