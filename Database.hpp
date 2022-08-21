@@ -1,7 +1,9 @@
 #pragma once
+#include "json.h"
 #include <iostream>
 #include <mariadb/conncpp.hpp>
 
+using json = nlohmann::json;
 class Database {
 
 private:
@@ -21,7 +23,7 @@ public:
   analyzeResults(const std::vector<std::string *> *resultsWords);
   void showTables();
   void createCategory(const std::string &category);
-  void addWords(std::string &categoryName);
+  json addWords(std::string &categoryName, std::string &theme);
   void showWordsByCategory();
   void deleteCategory();
 

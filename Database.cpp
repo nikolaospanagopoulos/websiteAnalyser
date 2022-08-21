@@ -3,6 +3,7 @@
 #include "JsonDownloader.hpp"
 #include <map>
 
+using json = nlohmann::json;
 Database::Database() {
 
   driver = sql::mariadb::get_driver_instance();
@@ -146,21 +147,21 @@ std::string Database::getCategoryId(const std::string &categoryName) {
   return categoryId;
 }
 
-void Database::addWords(std::string &categoryName) {
+json Database::addWords(std::string &categoryName, std::string &theme) {
 
   try {
 
-    createCategory(categoryName);
+    if (categoryName.empty() || theme.empty()) {
+      throw CustomException((char *)"one of the fields is empty");
+    }
 
-    std::cout << "What theme would you like to add ? \n";
-    std::string theme{};
-    std::cin >> theme;
+    createCategory(categoryName);
 
     JsonDownloader *themeDownloader = new JsonDownloader{};
 
     themeDownloader->fillJsonVector(theme);
 
-    std::vector<std::string *> *results = themeDownloader->getWordsFromJson();
+    std::vector<std::string> *results = themeDownloader->getWordsFromJson();
 
     std::string categoryId = getCategoryId(categoryName);
 
@@ -170,8 +171,8 @@ void Database::addWords(std::string &categoryName) {
     std::string queryToAddWords =
         "INSERT IGNORE INTO words (category_id,text) VALUES ";
 
-    for (auto *word : *results) {
-      queryToAddWords.append("(" + categoryId + "," + "\"" + *word + "\"), ");
+    for (auto &word : *results) {
+      queryToAddWords.append("(" + categoryId + "," + "\"" + word + "\"), ");
     }
     queryToAddWords.pop_back();
     queryToAddWords.pop_back();
@@ -179,13 +180,24 @@ void Database::addWords(std::string &categoryName) {
 
     std::cout << queryToAddWords << std::endl;
     res = stmt->executeQuery(queryToAddWords);
-    for (auto ptr : *results) {
-      delete ptr;
-    }
+
+    // prepare json object to return;
+
+    json addWordsResponse = json{};
+
+    (addWordsResponse)["status"] = "ok";
+
+    (addWordsResponse)["wordsAdded"] = *results;
+
+    (addWordsResponse)["query"] = queryToAddWords;
+
     delete results;
     delete themeDownloader;
     delete res;
     delete stmt;
+
+    return addWordsResponse;
+
   } catch (sql::SQLException &e) {
     throw CustomException((char *)(e.what()));
   }

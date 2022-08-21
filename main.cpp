@@ -43,7 +43,28 @@ int main() {
           }
         });
 
+    CROW_ROUTE(app, "/addwords")
+        .methods("POST"_method)([db](const crow::request &req) {
+          try {
+            auto x = crow::json::load(req.body);
+            if (!x["category"]) {
+              return crow::response(400);
+            }
+            std::string category = (std::string)x["category"];
+            std::string theme = (std::string)x["theme"];
+            json responseJson = db->addWords(category, theme);
+            return crow::response(responseJson.dump());
+          } catch (CustomException &e) {
+            json errorMessage = createErrorResponse(e.what());
+            return crow::response(400, errorMessage.dump());
+          } catch (const std::exception &ex) {
+            json errorMessage = createErrorResponse(ex.what());
+            return crow::response(400, errorMessage.dump());
+          }
+        });
+
     app.port(5000).multithreaded().run();
+    delete db;
     // switch (choice) {
 
     //  case '2':
