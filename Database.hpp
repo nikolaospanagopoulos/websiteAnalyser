@@ -28,7 +28,7 @@ public:
   void createCategory(const std::string &category);
   json addWords(std::string &categoryName, std::string &theme);
   void showWordsByCategory();
-  void deleteCategory();
+  void deleteCategory(const std::string &categoryName);
 
   Database();
   ~Database();

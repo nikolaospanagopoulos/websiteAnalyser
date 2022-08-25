@@ -1,13 +1,13 @@
 
-#include "../CustomException.hpp"
-#include "../Database.hpp"
-#include "../Downloader.hpp"
-#include "../HtmlParser.hpp"
-#include "../JsonDownloader.hpp"
-#include "../JsonResponse.h"
-#include "../analyzeWebsite.h"
-#include "../crow/middlewares/cors.h"
-#include "../helpers.h"
+#include "CustomException.hpp"
+#include "Database.hpp"
+#include "Downloader.hpp"
+#include "HtmlParser.hpp"
+#include "JsonDownloader.hpp"
+#include "JsonResponse.h"
+#include "analyzeWebsite.h"
+#include "crow/middlewares/cors.h"
+#include "helpers.h"
 #include <crow.h>
 #include <iostream>
 #include <mariadb/conncpp/Exception.hpp>

@@ -423,18 +423,12 @@ Database::calculatePercentage(std::map<std::string, size_t> *resultsMap) {
   return percentageMap;
 }
 
-void Database::deleteCategory() {
+void Database::deleteCategory(const std::string &categoryName) {
   try {
 
     sql::Statement *stmt;
     stmt = con->createStatement();
     sql::ResultSet *res;
-
-    std::cout << "select a category to delete: \n";
-
-    std::string categoryName{};
-
-    std::cin >> categoryName;
 
     std::string categoryId = getCategoryId(categoryName);
 

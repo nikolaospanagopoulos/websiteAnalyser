@@ -66,26 +66,38 @@ int main() {
           }
         });
 
+    CROW_ROUTE(app, "/deletecategory")
+        .methods("DELETE"_method)([db](const crow::request &req) {
+          try {
+            auto x = crow::json::load(req.body);
+            if (!x["category"]) {
+              return crow::response(400);
+            }
+            std::string category = (std::string)x["category"];
+            db->deleteCategory(category);
+            json categoryDeletedResponse{};
+            categoryDeletedResponse["status"] = "ok";
+
+            return crow::response(204, categoryDeletedResponse.dump());
+
+          } catch (CustomException &e) {
+            json errorMessage = createErrorResponse(e.what());
+            return crow::response(400, errorMessage.dump());
+          } catch (const std::exception &ex) {
+            json errorMessage = createErrorResponse(ex.what());
+            return crow::response(400, errorMessage.dump());
+          }
+        });
+
     app.port(5000).multithreaded().run();
     delete db;
-    // switch (choice) {
-
-    // case '3':
-    // db->showTables();
-    // break;
-    // case '4':
-    //  db->showWordsByCategory();
-    // break;
-    // case '5':
-    // db->deleteCategory();
-    // break;
-    //}
-    //} while (choice != 'x' && choice != 'X');
 
   } catch (CustomException &err) {
     std::cerr << err.what() << std::endl;
   } catch (sql::SQLException &e) {
     std::cerr << e.what() << std::endl;
+  } catch (const std::exception &ex) {
+    std::cerr << ex.what() << std::endl;
   }
   return 0;
 }
