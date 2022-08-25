@@ -3,6 +3,7 @@
 #include "Downloader.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <random>
 #include <vector>
 
@@ -18,7 +19,7 @@ std::string getUrlFromUser() {
 std::vector<std::string> *
 randomWords(const std::set<std::string> *const allWords) {
 
-  size_t randomWordsSize{20};
+  size_t randomWordsSize{30};
 
   if (allWords->size() < randomWordsSize && allWords->size() > 0) {
     randomWordsSize = allWords->size();
@@ -52,10 +53,9 @@ size_t writeResponseToString(char *contents, size_t size, size_t nmemb,
 size_t (*callBackToWrite)(char *, size_t, size_t,
                           void *) = writeResponseToString;
 
-void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
+void freeMemory(std::map<std::string, size_t> *resultsMap, HtmlParser *parser,
                 JsonDownloader *wordsDownloader,
-                std::vector<std::string *> *resultsWords,
-                Downloader *downloader,
+                std::vector<std::string> *resultsWords, Downloader *downloader,
                 std::vector<std::string *> *finalResults) {
 
   delete wordsDownloader;
@@ -65,14 +65,7 @@ void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
     delete ptr;
   }
   delete finalResults;
-  for (auto ptr : *ids) {
-    delete ptr;
-  }
-  delete ids;
-  for (auto val : *resultsWords) {
-
-    delete val;
-  }
+  delete resultsMap;
   delete resultsWords;
 }
 

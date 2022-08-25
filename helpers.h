@@ -14,9 +14,9 @@ size_t writeResponseToString(char *contents, size_t size, size_t nmemb,
                              void *userData);
 extern size_t (*callBackToWrite)(char *, size_t, size_t, void *);
 
-void freeMemory(std::vector<std::string *> *ids, HtmlParser *parser,
+void freeMemory(std::map<std::string, size_t> *resultsMap, HtmlParser *parser,
                 JsonDownloader *wordsDownloader,
-                std::vector<std::string *> *resultsWords,
+                std::vector<std::string> *resultsWords,
 
                 Downloader *downloader,
                 std::vector<std::string *> *finalResults);

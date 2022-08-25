@@ -1,6 +1,7 @@
 #include "JsonResponse.h"
 #include <iostream>
-json createJsonRespone(const std::vector<std::string *> *responsesVec) {
+json createJsonRespone(const std::vector<std::string *> *responsesVec,
+                       std::map<std::string, double> *percentageMap) {
 
   json j;
 
@@ -15,6 +16,7 @@ json createJsonRespone(const std::vector<std::string *> *responsesVec) {
   }
   j["response"] = *forJson;
 
+  j["percentages"] = *percentageMap;
   std::cout << j.dump() << '\n';
   delete forJson;
   return j;

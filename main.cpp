@@ -40,6 +40,9 @@ int main() {
           } catch (CustomException &e) {
             json errorMessage = createErrorResponse(e.what());
             return crow::response(400, errorMessage.dump());
+          } catch (const std::exception &ex) {
+            json errorMessage = createErrorResponse(ex.what());
+            return crow::response(400, errorMessage.dump());
           }
         });
 
@@ -67,9 +70,6 @@ int main() {
     delete db;
     // switch (choice) {
 
-    //  case '2':
-    //   db->addWords();
-    //  break;
     // case '3':
     // db->showTables();
     // break;

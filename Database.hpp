@@ -10,6 +10,7 @@ private:
   sql::Driver *driver;
   sql::Connection *con;
 
+  std::string getCategoryName(const std::string &categoryId);
   bool categoryExists(const std::string &category);
   void createCategoriesTable();
   void createWordsTable();
@@ -17,10 +18,12 @@ private:
   std::string getCategoryId(const std::string &categoryName);
 
 public:
+  std::map<std::string, double> *
+  calculatePercentage(std::map<std::string, size_t> *resultsMap);
   std::vector<std::string *> *
-  getResults(std::vector<std::string *> *resultsNumVec);
-  std::vector<std::string *> *
-  analyzeResults(const std::vector<std::string *> *resultsWords);
+  getResults(std::map<std::string, size_t> *resultsMap);
+  std::map<std::string, size_t> *
+  analyzeResults(const std::vector<std::string> *resultsWords);
   void showTables();
   void createCategory(const std::string &category);
   json addWords(std::string &categoryName, std::string &theme);

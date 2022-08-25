@@ -1,5 +1,6 @@
 #include "HtmlParser.hpp"
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <cctype>
 #include <cstddef>
 #include <regex>
@@ -38,9 +39,10 @@ void HtmlParser::removeBeyondBodyContent(std::string *html) {
 
 void HtmlParser::removeHtmlTags(std::string *html) {
 
-  std::regex tags("<[^>]*>");
-
-  *html = std::regex_replace(*html, tags, "");
+  boost::regex expr{"<[^>]*>"};
+  std::string *result = new std::string{boost::regex_replace(*html, expr, "")};
+  *html = *result;
+  delete result;
 }
 
 void HtmlParser::seperateWordsOnCapital(std::string **data) {
@@ -106,14 +108,31 @@ void HtmlParser::prepareDataForVector(std::string *html) {
 
   removeSpaces(html);
 
+  std::cout << "after space removing" << html << std::endl;
   removeBeyondBodyContent(html);
 
+  std::cout << "after removing except body" << html << std::endl;
   removeScriptTags(html);
+  std::cout << "after removing script" << html << std::endl;
   removeHtmlTags(html);
+  std::cout << "after html tags" << html << std::endl;
   removeComments(html);
+  std::cout << "after comments" << std::endl;
   removeSpecialChars(html);
+  std::cout << "after specialChars" << std::endl;
 
   seperateWordsOnCapital(&html);
+  std::cout << "after seperating words" << std::endl;
+  std::cout << html << std::endl;
+}
+
+bool HtmlParser::checkIfHasCapitalsInside(const std::string *word) const {
+  for (size_t i{}; i < word->size(); i++) {
+    if (i > 0 && std::isupper((*word)[i])) {
+      return true;
+    }
+  }
+  return false;
 }
 
 HtmlParser::HtmlParser() { words = new std::set<std::string>{}; }
@@ -127,7 +146,8 @@ std::set<std::string> *HtmlParser::fillSet(std::string *html) {
   std::string *temp = new std::string{};
 
   while (*wordStream >> *temp) {
-    if (temp->size() >= 20 || temp->size() < 3) {
+    if (temp->size() >= 20 || temp->size() < 3 ||
+        checkIfHasCapitalsInside(temp)) {
 
       continue;
     }

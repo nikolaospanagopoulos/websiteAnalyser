@@ -1,4 +1,4 @@
-FLAGS= -Wall -std=c++17
+FLAGS= -Wall -std=c++20
 LIB= -lcurl -lmariadbcpp
 
 

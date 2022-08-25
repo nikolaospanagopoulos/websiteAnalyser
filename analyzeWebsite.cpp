@@ -1,12 +1,13 @@
 #include "analyzeWebsite.h"
+#include "JsonDownloader.hpp"
 #include "JsonResponse.h"
 #include "helpers.h"
+#include <thread>
 json analyzeWebsite(Downloader *downloader, HtmlParser *parser,
                     JsonDownloader *wordsDownloader, const std::string &website,
                     Database *db) {
 
   std::string *websiteHtmlContent = downloader->requestData(website);
-
   parser->prepareDataForVector(websiteHtmlContent);
 
   std::set<std::string> *wordSet = parser->fillSet(websiteHtmlContent);
@@ -18,16 +19,19 @@ json analyzeWebsite(Downloader *downloader, HtmlParser *parser,
     std::cout << el << std::endl;
   }
 
-  std::vector<std::string *> *resultsWords =
-      wordsDownloader->getWordsFromJson();
+  std::vector<std::string> *resultsWords = wordsDownloader->getWordsFromJson();
 
   delete randomWordsVector;
-  std::vector<std::string *> *ids = db->analyzeResults(resultsWords);
-  std::vector<std::string *> *finalResults = db->getResults(ids);
+  std::map<std::string, size_t> *results = db->analyzeResults(resultsWords);
+  std::vector<std::string *> *finalResults = db->getResults(results);
 
-  json response = createJsonRespone(finalResults);
-  freeMemory(ids, parser, wordsDownloader, resultsWords, downloader,
+  std::map<std::string, double> *percentageMap =
+      db->calculatePercentage(results);
+
+  json response = createJsonRespone(finalResults, percentageMap);
+  freeMemory(results, parser, wordsDownloader, resultsWords, downloader,
              finalResults);
+  delete percentageMap;
 
   return response;
 }

@@ -1,6 +1,7 @@
 #include "Database.hpp"
 #include "CustomException.hpp"
 #include "JsonDownloader.hpp"
+#include <cmath>
 #include <map>
 
 using json = nlohmann::json;
@@ -62,7 +63,8 @@ void Database::createWordsTable() {
   std::string query{
       "CREATE TABLE IF NOT EXISTS words ( word_id INT  NOT NULL "
       "AUTO_INCREMENT, text "
-      "VARCHAR(250) NOT NULL, category_id INT, FOREIGN KEY (category_id) "
+      "VARCHAR(250) NOT NULL, category_id INT,  UNIQUE (text), FOREIGN KEY "
+      "(category_id) "
       "REFERENCES categories (category_id) ON DELETE CASCADE, PRIMARY KEY "
       "(word_id))"};
   try {
@@ -159,7 +161,7 @@ json Database::addWords(std::string &categoryName, std::string &theme) {
 
     JsonDownloader *themeDownloader = new JsonDownloader{};
 
-    themeDownloader->fillJsonVector(theme);
+    themeDownloader->fillJsonVector(theme, "50");
 
     std::vector<std::string> *results = themeDownloader->getWordsFromJson();
 
@@ -285,8 +287,8 @@ void Database::showWordsByCategory() {
     throw CustomException((char *)(e.what()));
   }
 }
-std::vector<std::string *> *
-Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
+std::map<std::string, size_t> *
+Database::analyzeResults(const std::vector<std::string> *resultsWords) {
   try {
 
     if (resultsWords->size() == 0) {
@@ -296,12 +298,12 @@ Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
 
     std::string statement = {"SELECT category_id FROM words WHERE "};
 
-    for (auto *word : *resultsWords) {
+    for (auto word : *resultsWords) {
 
-      std::string text = "text LIKE ";
+      std::string text = "text = ";
 
       std::string orSql = " OR ";
-      statement.append(text + "\"" + *word + "\"" + orSql);
+      statement.append(text + "\"" + word + "\"" + orSql);
     }
 
     auto wordToRemove = statement.find_last_of("OR");
@@ -321,12 +323,13 @@ Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
     if (columns == 0) {
       throw CustomException(const_cast<char *>("no results in db"));
     }
-    std::vector<std::string *> *categoryIdsVector =
-        new std::vector<std::string *>{};
+    std::map<std::string, size_t> *resultsMap =
+        new std::map<std::string, size_t>{};
     while (res->next()) {
       for (size_t i = 1; i <= columns; i++) {
 
-        categoryIdsVector->push_back(new std::string{res->getString(i)});
+        std::cout << "category " << (std::string)res->getString(i) << std::endl;
+        (*resultsMap)[(std::string)(res->getString(i))]++;
       }
     }
 
@@ -334,29 +337,19 @@ Database::analyzeResults(const std::vector<std::string *> *resultsWords) {
     delete res;
     delete stmt;
 
-    return categoryIdsVector;
+    return resultsMap;
   } catch (sql::SQLException &e) {
     throw CustomException((char *)(e.what()));
   }
   return nullptr;
 }
 
-std::vector<std::string *> *
-Database::getResults(std::vector<std::string *> *resultsNumVec) {
+std::string Database::getCategoryName(const std::string &categoryId) {
 
   std::string statement = {"SELECT name FROM categories WHERE "};
 
-  for (auto *id : *resultsNumVec) {
-
-    std::string text = "category_id LIKE ";
-
-    std::string orSql = " OR ";
-    statement.append(text + "\"" + *id + "\"" + orSql);
-  }
-
-  auto wordToRemove = statement.find_last_of("OR");
-
-  statement.erase(wordToRemove - 1);
+  std::string text = "category_id = ";
+  statement.append(text + "\"" + categoryId + "\"");
 
   statement.append(";");
 
@@ -368,17 +361,66 @@ Database::getResults(std::vector<std::string *> *resultsNumVec) {
   sql::ResultSetMetaData *res_meta = res->getMetaData();
 
   size_t columns = res_meta->getColumnCount();
-  std::vector<std::string *> *results = new std::vector<std::string *>{};
+  std::string categoryName{};
   while (res->next()) {
     for (size_t i = 1; i <= columns; i++) {
 
-      results->push_back(new std::string(res->getString(i)));
+      categoryName = (std::string(res->getString(i)));
+      std::cout << categoryName << std::endl;
     }
   }
+
   delete stmt;
   delete res;
   delete res_meta;
+  return categoryName;
+}
+
+std::vector<std::string *> *
+Database::getResults(std::map<std::string, size_t> *resultsMap) {
+
+  std::vector<std::string *> *results = new std::vector<std::string *>{};
+  if (resultsMap->empty()) {
+    results->push_back(new std::string{"no results"});
+    return results;
+  }
+
+  for (auto pair : *resultsMap) {
+    std::cout << pair.first << pair.second << std::endl;
+    results->push_back(new std::string(getCategoryName(pair.first)));
+  }
+
   return results;
+}
+
+std::map<std::string, double> *
+Database::calculatePercentage(std::map<std::string, size_t> *resultsMap) {
+
+  int result{};
+
+  for (auto &pair : *resultsMap) {
+    result += pair.second;
+  }
+  std::cout << "result: " << result << std::endl;
+
+  std::map<std::string, double> *percentageMap =
+      new std::map<std::string, double>{};
+  for (auto &pair : *resultsMap) {
+
+    double decimalVal = ((double)pair.second / result) * 100;
+    double cutDecimal = std::ceil(decimalVal * 100) / 100.0;
+
+    percentageMap->insert(std::pair<std::string, double>(
+
+        getCategoryName(pair.first), cutDecimal));
+  }
+
+  for (auto &pair : *percentageMap) {
+    std::cout << "first: " << pair.first << " second: " << pair.second
+              << std::endl;
+  }
+
+  return percentageMap;
 }
 
 void Database::deleteCategory() {

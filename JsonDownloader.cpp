@@ -20,7 +20,8 @@ JsonDownloader::~JsonDownloader() {
   jsonObjects = nullptr;
 }
 
-std::string JsonDownloader::buildRequestUrl(const std::string &word) const {
+std::string JsonDownloader::buildRequestUrl(const std::string &word,
+                                            std::string wordsNumber) const {
 
   std::string firstApiPart{
       "https://api.wordassociations.net/associations/v1.0/json/"
@@ -28,14 +29,16 @@ std::string JsonDownloader::buildRequestUrl(const std::string &word) const {
 
   std::string lookFor = word;
 
-  std::string restOfApiUrl{"&lang=en"};
+  std::string restOfApiUrl{"&lang=en&limit="};
 
+  restOfApiUrl.append(wordsNumber);
   return firstApiPart + lookFor + restOfApiUrl;
 };
 
-json *JsonDownloader::sendRequest(const std::string &word) {
+json *JsonDownloader::sendRequest(const std::string &word,
+                                  std::string wordsNumber) {
 
-  std::string urlForRequest = buildRequestUrl(word);
+  std::string urlForRequest = buildRequestUrl(word, wordsNumber);
 
   CURL *curl{};
   CURLcode res{};
@@ -69,9 +72,10 @@ json *JsonDownloader::sendRequest(const std::string &word) {
   ;
 }
 
-void JsonDownloader::fillJsonVector(const std::string &word) {
+void JsonDownloader::fillJsonVector(const std::string &word,
+                                    std::string wordsNumber) {
 
-  jsonObjects->push_back(sendRequest(word));
+  jsonObjects->push_back(sendRequest(word, wordsNumber));
 };
 
 std::vector<json *> *JsonDownloader::getJsonResponses() const {
