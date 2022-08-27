@@ -28,6 +28,8 @@ json analyzeWebsite(Downloader *downloader, HtmlParser *parser,
   std::map<std::string, double> *percentageMap =
       db->calculatePercentage(results);
 
+  db->insertWebsiteToDb(website, percentageMap, finalResults);
+
   json response = createJsonRespone(finalResults, percentageMap);
   freeMemory(results, parser, wordsDownloader, resultsWords, downloader,
              finalResults);

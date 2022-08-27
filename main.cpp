@@ -32,6 +32,14 @@ int main() {
               return crow::response(400);
             }
 
+            int websiteID = db->getWebsiteId((std::string)x["website"]);
+
+            if (websiteID != -1) {
+              json cachedResponse =
+                  db->getDbResponse((std::string)x["website"]);
+              return crow::response(cachedResponse.dump());
+            }
+
             Downloader *downloader = new Downloader{};
             HtmlParser *parser = new HtmlParser{};
             JsonDownloader *wordsDownloader = new JsonDownloader{};

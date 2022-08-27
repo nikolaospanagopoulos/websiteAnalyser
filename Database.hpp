@@ -19,7 +19,18 @@ private:
   void createWebsiteTable();
   void createPercentagesTable();
 
+  void insertMapPairToDb(const std::pair<std::string, double> &mapPair,
+                         int &websiteID);
+  void insertPercentagesToDb(const std::string &website,
+                             const std::map<std::string, double> *resultsMap,
+                             const std::vector<std::string *> *results);
+
 public:
+  int getWebsiteId(const std::string &website);
+  json getDbResponse(const std::string &website);
+  void insertWebsiteToDb(const std::string &website,
+                         const std::map<std::string, double> *resultsMap,
+                         const std::vector<std::string *> *results);
   bool checkIfWebsiteExistsInDb(const std::string &website);
   std::map<std::string, double> *
   calculatePercentage(std::map<std::string, size_t> *resultsMap);

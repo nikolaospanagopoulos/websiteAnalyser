@@ -1,6 +1,7 @@
 #include "Database.hpp"
 #include "CustomException.hpp"
 #include "JsonDownloader.hpp"
+#include "JsonResponse.h"
 #include <cmath>
 #include <map>
 
@@ -488,6 +489,154 @@ void Database::deleteCategory(const std::string &categoryName) {
 
     delete res;
     delete stmt;
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+void Database::insertWebsiteToDb(
+    const std::string &website, const std::map<std::string, double> *resultsMap,
+    const std::vector<std::string *> *results) {
+  if (resultsMap->empty() || results->empty()) {
+    return;
+  }
+
+  try {
+
+    std::string query{"INSERT IGNORE INTO websites (url) VALUES  "};
+
+    query.append("(\"" + website + "\")");
+
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+    res = stmt->executeQuery(query);
+
+    delete res;
+    delete stmt;
+
+    insertPercentagesToDb(website, resultsMap, results);
+
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+
+void Database::insertPercentagesToDb(
+    const std::string &website, const std::map<std::string, double> *resultsMap,
+    const std::vector<std::string *> *results) {
+
+  try {
+
+    int websiteID = getWebsiteId(website);
+
+    for (const auto &mypair : *resultsMap) {
+      insertMapPairToDb(mypair, websiteID);
+    }
+
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+
+void Database::insertMapPairToDb(const std::pair<std::string, double> &mapPair,
+                                 int &websiteID) {
+
+  try {
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+    std::string query{
+        "INSERT INTO percentages (theme,percentage,website_id) VALUES "};
+    query.append("(\"" + mapPair.first + "\"" + "," +
+                 std::to_string(mapPair.second) + "," +
+                 std::to_string(websiteID) + ")");
+
+    res = stmt->executeQuery(query);
+
+    delete stmt;
+    delete res;
+
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+
+int Database::getWebsiteId(const std::string &website) {
+
+  try {
+
+    std::string query{"SELECT website_id FROM websites WHERE url="};
+
+    query.append("\"" + website + "\"");
+
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+    res = stmt->executeQuery(query);
+
+    int website_id{-1};
+    if (res->next()) {
+
+      website_id = res->getInt("website_id");
+    }
+
+    delete res;
+    delete stmt;
+
+    return website_id;
+
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+
+json Database::getDbResponse(const std::string &website)
+
+{
+
+  try {
+    sql::Statement *stmt;
+    stmt = con->createStatement();
+    sql::ResultSet *res;
+    int website_id = getWebsiteId(website);
+
+    std::string query{"SELECT * FROM percentages WHERE website_id="};
+    query.append(std::to_string(website_id));
+    res = stmt->executeQuery(query);
+
+    sql::ResultSetMetaData *res_meta = res->getMetaData();
+
+    size_t columns = res_meta->getColumnCount();
+
+    std::vector<std::string *> *results = new std::vector<std::string *>{};
+
+    std::map<std::string, double> *cachedResultsMap =
+        new std::map<std::string, double>{};
+
+    while (res->next()) {
+      results->push_back(new std::string(res->getString("theme")));
+      cachedResultsMap->insert(std::pair<std::string, double>{
+          (std::string)res->getString("theme"),
+          res->getDouble("percentage"),
+      });
+    }
+
+    json finalResult = createJsonRespone(results, cachedResultsMap);
+
+    delete res;
+    delete stmt;
+    delete res_meta;
+
+    for (auto &ptr : *results) {
+      delete ptr;
+    }
+
+    delete results;
+
+    delete cachedResultsMap;
+
+    return finalResult;
+
   } catch (sql::SQLException &e) {
     throw CustomException((char *)(e.what()));
   }
