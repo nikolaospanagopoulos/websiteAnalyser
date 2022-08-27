@@ -16,8 +16,11 @@ private:
   void createWordsTable();
   void createDatabase();
   std::string getCategoryId(const std::string &categoryName);
+  void createWebsiteTable();
+  void createPercentagesTable();
 
 public:
+  bool checkIfWebsiteExistsInDb(const std::string &website);
   std::map<std::string, double> *
   calculatePercentage(std::map<std::string, size_t> *resultsMap);
   std::vector<std::string *> *

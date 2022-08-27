@@ -17,6 +17,8 @@ Database::Database() {
 
   createCategoriesTable();
   createWordsTable();
+  createWebsiteTable();
+  createPercentagesTable();
 }
 
 void Database::createDatabase() {
@@ -55,6 +57,47 @@ void Database::createCategoriesTable() {
     throw CustomException((char *)(e.what()));
   }
 }
+void Database::createWebsiteTable() {
+
+  sql::Statement *stmt;
+  sql::ResultSet *res;
+  stmt = con->createStatement();
+  std::string query{
+
+      "CREATE TABLE IF NOT EXISTS websites (website_id INT NOT NULL "
+      "AUTO_INCREMENT, url VARCHAR(550) NOT NULL,UNIQUE(url), PRIMARY "
+      "KEY(website_id))"};
+
+  try {
+    res = stmt->executeQuery(query);
+    delete stmt;
+    delete res;
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+void Database::createPercentagesTable() {
+  sql::Statement *stmt;
+  sql::ResultSet *res;
+
+  stmt = con->createStatement();
+  std::string query{
+      "CREATE TABLE IF NOT EXISTS percentages ( percentage_id INT  NOT NULL "
+      "AUTO_INCREMENT, theme "
+      "VARCHAR(250) NOT NULL, percentage DOUBLE NOT NULL, website_id INT, "
+      "FOREIGN KEY "
+      "(website_id) "
+      "REFERENCES websites (website_id) ON DELETE CASCADE, PRIMARY KEY "
+      "(percentage_id))"};
+  try {
+    res = stmt->executeQuery(query);
+    delete stmt;
+    delete res;
+  } catch (sql::SQLException &e) {
+    throw CustomException((char *)(e.what()));
+  }
+}
+
 void Database::createWordsTable() {
   sql::Statement *stmt;
   sql::ResultSet *res;

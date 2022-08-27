@@ -27,13 +27,14 @@ int main() {
     CROW_ROUTE(app, "/analyze")
         .methods("POST"_method)([db](const crow::request &req) {
           try {
-            Downloader *downloader = new Downloader{};
-            HtmlParser *parser = new HtmlParser{};
-            JsonDownloader *wordsDownloader = new JsonDownloader{};
             auto x = crow::json::load(req.body);
             if (!x) {
               return crow::response(400);
             }
+
+            Downloader *downloader = new Downloader{};
+            HtmlParser *parser = new HtmlParser{};
+            JsonDownloader *wordsDownloader = new JsonDownloader{};
             json response = analyzeWebsite(downloader, parser, wordsDownloader,
                                            (std::string)x["website"], db);
             return crow::response(response.dump());
