@@ -7,9 +7,20 @@
 
 using json = nlohmann::json;
 Database::Database() {
+sql::ConnectOptionsMap connection_properties;
+
+connection_properties["hostName"] = "db";
+connection_properties["userName"] = "root";
+connection_properties["password"] = "pass";
+connection_properties["port"] = "3306";
+ 
+
 
   driver = sql::mariadb::get_driver_instance();
-  con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+
+
+
+  con = driver->connect(connection_properties);
   if (!con) {
     throw CustomException((char *)("couldnt connect to db"));
   }

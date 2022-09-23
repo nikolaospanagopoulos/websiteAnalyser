@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    build: ./mariadb
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MARIADB_DATABASE=grapeshotClone
+      - MARIADB_ROOT_PASSWORD=pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  app:
+     
+    build:
+      context: ./
+      
+    
+    depends_on:
+      - db
+    ports:
+      - 5000:5000
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: pass
+      DB_NAME: grapeshotClone
+    links:
+      - db
+    volumes:
+      - ./:/src
+volumes:
+  db:
+    driver: local
