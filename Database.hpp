@@ -2,7 +2,7 @@
 #include "json.h"
 #include <iostream>
 #include <mariadb/conncpp.hpp>
-
+#include <mariadb/conncpp/DriverManager.hpp>
 using json = nlohmann::json;
 class Database {
 
@@ -26,6 +26,7 @@ private:
                              const std::vector<std::string *> *results);
 
 public:
+void connectDB();
   int getWebsiteId(const std::string &website);
   json getDbResponse(const std::string &website);
   void insertWebsiteToDb(const std::string &website,

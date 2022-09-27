@@ -1,0 +1,37 @@
+version: '3.9'
+
+
+services:
+  app:
+    build:
+      context: ./
+    links:
+      - "mariadb:database"
+    restart: on-failure
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - 5000:5000
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb-10.5
+    restart: unless-stopped
+    expose:
+      - 3306
+    ports:
+      # port 3306 is the default port for mariadb, forwarded to 8889 on the local machine
+      - 3306:3306
+    hostname: "data"  
+    healthcheck:
+      test:  mysql --user=root --password=123 -e 'SELECT * FROM information_schema.SCHEMATA;\! echo "I like to party...";'  
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_HOST: mariadb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123
+volumes:
+  db:
+    driver: local

@@ -7,10 +7,12 @@
 
 using json = nlohmann::json;
 Database::Database() {
-
   driver = sql::mariadb::get_driver_instance();
-  con = driver->connect("tcp://127.0.0.1:3306", "root", "");
-  if (!con) {
+ 
+con = driver->connect("mariadb", "root", "123");
+
+ if (!con) {
+  
     throw CustomException((char *)("couldnt connect to db"));
   }
   createDatabase();
@@ -20,6 +22,10 @@ Database::Database() {
   createWordsTable();
   createWebsiteTable();
   createPercentagesTable();
+ 
+
+ 
+ 
 }
 
 void Database::createDatabase() {

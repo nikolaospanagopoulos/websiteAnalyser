@@ -14,6 +14,7 @@ int main() {
 
   try {
     Database *db = new Database{};
+ 
     crow::App<crow::CORSHandler> app;
     auto &cors = app.get_middleware<crow::CORSHandler>();
 
